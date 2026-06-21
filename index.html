@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kanban Board — Task Manager</title>
+  <meta name="description" content="A premium Trello-style Kanban task board with drag and drop, priority labels, and localStorage persistence.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- ========== HEADER ========== -->
+  <header class="app-header">
+    <div class="header-inner">
+      <div class="header-brand">
+        <div class="brand-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="7" height="7" rx="1.5"/>
+            <rect x="14" y="3" width="7" height="7" rx="1.5"/>
+            <rect x="3" y="14" width="7" height="7" rx="1.5"/>
+            <rect x="14" y="14" width="7" height="7" rx="1.5"/>
+          </svg>
+        </div>
+        <div>
+          <h1 class="brand-name">KanbanFlow</h1>
+          <p class="brand-subtitle">Organize · Prioritize · Deliver</p>
+        </div>
+      </div>
+      <div class="header-stats">
+        <div class="stat-chip" id="stat-total">
+          <span class="stat-num" id="total-count">0</span>
+          <span class="stat-label">Tasks</span>
+        </div>
+        <div class="stat-chip" id="stat-progress">
+          <span class="stat-num" id="progress-pct">0%</span>
+          <span class="stat-label">Done</span>
+        </div>
+        <button class="btn-clear-all" id="clearAllBtn" title="Clear all tasks">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+          Clear All
+        </button>
+      </div>
+    </div>
+    <!-- Progress bar -->
+    <div class="global-progress">
+      <div class="global-progress-bar" id="globalProgressBar"></div>
+    </div>
+  </header>
+
+  <!-- ========== BOARD ========== -->
+  <main class="board-container">
+    <div class="board" id="board">
+
+      <!-- TO DO -->
+      <section class="column" data-status="todo" id="col-todo">
+        <div class="column-header">
+          <div class="col-title-group">
+            <span class="col-dot todo-dot"></span>
+            <h2 class="col-title">To Do</h2>
+            <span class="count-badge" id="count-todo">0</span>
+          </div>
+          <button class="col-add-btn" data-status="todo" id="add-todo" title="Add task to To Do">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </button>
+        </div>
+        <div class="card-list" data-status="todo" id="list-todo">
+          <div class="empty-state" id="empty-todo">
+            <div class="empty-icon">📋</div>
+            <p>No tasks yet</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- IN PROGRESS -->
+      <section class="column" data-status="inprogress" id="col-inprogress">
+        <div class="column-header">
+          <div class="col-title-group">
+            <span class="col-dot inprogress-dot"></span>
+            <h2 class="col-title">In Progress</h2>
+            <span class="count-badge" id="count-inprogress">0</span>
+          </div>
+          <button class="col-add-btn" data-status="inprogress" id="add-inprogress" title="Add task to In Progress">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </button>
+        </div>
+        <div class="card-list" data-status="inprogress" id="list-inprogress">
+          <div class="empty-state" id="empty-inprogress">
+            <div class="empty-icon">🚧</div>
+            <p>Nothing in progress</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- DONE -->
+      <section class="column" data-status="done" id="col-done">
+        <div class="column-header">
+          <div class="col-title-group">
+            <span class="col-dot done-dot"></span>
+            <h2 class="col-title">Done</h2>
+            <span class="count-badge" id="count-done">0</span>
+          </div>
+          <button class="col-add-btn" data-status="done" id="add-done" title="Add task to Done">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </button>
+        </div>
+        <div class="card-list" data-status="done" id="list-done">
+          <div class="empty-state" id="empty-done">
+            <div class="empty-icon">✅</div>
+            <p>Nothing completed yet</p>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- ========== MODAL ========== -->
+  <div class="modal-backdrop" id="modalBackdrop" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal" id="modal">
+      <div class="modal-header">
+        <h3 id="modalTitle">Add Task</h3>
+        <button class="modal-close-btn" id="modalClose" aria-label="Close modal">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+
+      <div class="form-group">
+        <label for="taskTitle">Title <span class="required">*</span></label>
+        <input type="text" id="taskTitle" placeholder="e.g. Implement drag and drop" maxlength="100" autocomplete="off">
+        <span class="char-count" id="titleCount">0/100</span>
+      </div>
+
+      <div class="form-group">
+        <label for="taskDesc">Description</label>
+        <textarea id="taskDesc" rows="3" placeholder="Add more details about this task..." maxlength="300"></textarea>
+        <span class="char-count" id="descCount">0/300</span>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group half">
+          <label for="taskPriority">Priority</label>
+          <div class="select-wrapper">
+            <select id="taskPriority">
+              <option value="low">🟢 Low</option>
+              <option value="medium" selected>🟡 Medium</option>
+              <option value="high">🔴 High</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group half">
+          <label for="taskLabel">Label</label>
+          <div class="select-wrapper">
+            <select id="taskLabel">
+              <option value="">None</option>
+              <option value="feature">Feature</option>
+              <option value="bug">Bug</option>
+              <option value="design">Design</option>
+              <option value="docs">Docs</option>
+              <option value="test">Test</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="taskDue">Due Date</label>
+        <input type="date" id="taskDue">
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-secondary" id="modalCancel">Cancel</button>
+        <button class="btn-primary" id="modalSave">
+          <span id="modalSaveTxt">Save Task</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== DELETE CONFIRM MODAL ========== -->
+  <div class="modal-backdrop" id="deleteBackdrop" role="dialog" aria-modal="true">
+    <div class="modal modal-sm">
+      <div class="modal-header">
+        <h3>Delete Task?</h3>
+      </div>
+      <p class="delete-msg">This action cannot be undone. Are you sure you want to delete <strong id="deleteTaskName"></strong>?</p>
+      <div class="modal-actions">
+        <button class="btn-secondary" id="deleteCancel">Cancel</button>
+        <button class="btn-danger" id="deleteConfirm">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== TOAST ========== -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script src="script.js"></script>
+</body>
+</html>
